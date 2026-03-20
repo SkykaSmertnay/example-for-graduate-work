@@ -1,23 +1,31 @@
 package ru.skypro.homework.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.Ad;
 import ru.skypro.homework.dto.Ads;
 import ru.skypro.homework.dto.CreateOrUpdateAd;
 import ru.skypro.homework.dto.ExtendedAd;
+import ru.skypro.homework.service.AdsService;
 
 import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/ads")
 @CrossOrigin(value = "http://localhost:3000")
+@RequiredArgsConstructor
 public class AdsController {
+
+    private final AdsService adsService;
+    private final ObjectMapper objectMapper;
 
     @Operation(summary = "Получение всех объявлений")
     @ApiResponses(value = {
@@ -25,7 +33,7 @@ public class AdsController {
     })
     @GetMapping
     public ResponseEntity<Ads> getAllAds() {
-        return ResponseEntity.ok(new Ads());
+        return ResponseEntity.ok(adsService.getAllAds());
     }
 
     @Operation(summary = "Добавление объявления")
@@ -34,67 +42,45 @@ public class AdsController {
             @ApiResponse(responseCode = "401", description = "Неавторизован")
     })
     @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<Ad> addAd(@RequestPart("properties") @Valid CreateOrUpdateAd properties,
-                                    @RequestPart("image") MultipartFile image) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(new Ad());
+    public ResponseEntity<Ad> addAd(@RequestPart("properties") String properties,
+                                    @RequestPart("image") MultipartFile image,
+                                    Authentication authentication) throws Exception {
+        CreateOrUpdateAd createOrUpdateAd = objectMapper.readValue(properties, CreateOrUpdateAd.class);
+        Ad ad = adsService.addAd(authentication.getName(), createOrUpdateAd, image);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ad);
     }
 
-    @Operation(summary = "Получение информации об объявлении")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Объявление найдено"),
-            @ApiResponse(responseCode = "401", description = "Неавторизован"),
-            @ApiResponse(responseCode = "404", description = "Не найдено")
-    })
     @GetMapping("/{id}")
     public ResponseEntity<ExtendedAd> getAds(@PathVariable Integer id) {
-        return ResponseEntity.ok(new ExtendedAd());
+        return ResponseEntity.ok(adsService.getAdById(id));
     }
 
-    @Operation(summary = "Удаление объявления")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Объявление удалено"),
-            @ApiResponse(responseCode = "401", description = "Неавторизован"),
-            @ApiResponse(responseCode = "403", description = "Доступ запрещён"),
-            @ApiResponse(responseCode = "404", description = "Не найдено")
-    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeAd(@PathVariable Integer id) {
+    public ResponseEntity<Void> removeAd(@PathVariable Integer id,
+                                         Authentication authentication) {
+        adsService.deleteAd(id, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Обновление информации об объявлении")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Объявление обновлено"),
-            @ApiResponse(responseCode = "401", description = "Неавторизован"),
-            @ApiResponse(responseCode = "403", description = "Доступ запрещён"),
-            @ApiResponse(responseCode = "404", description = "Не найдено")
-    })
     @PatchMapping("/{id}")
     public ResponseEntity<Ad> updateAds(@PathVariable Integer id,
-                                        @Valid @RequestBody CreateOrUpdateAd createOrUpdateAd) {
-        return ResponseEntity.ok(new Ad());
+                                        @Valid @RequestBody CreateOrUpdateAd createOrUpdateAd,
+                                        Authentication authentication) {
+        return ResponseEntity.ok(
+                adsService.updateAd(id, authentication.getName(), createOrUpdateAd)
+        );
     }
 
-    @Operation(summary = "Получение объявлений авторизованного пользователя")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Объявления получены"),
-            @ApiResponse(responseCode = "401", description = "Неавторизован")
-    })
     @GetMapping("/me")
-    public ResponseEntity<Ads> getAdsMe() {
-        return ResponseEntity.ok(new Ads());
+    public ResponseEntity<Ads> getAdsMe(Authentication authentication) {
+        return ResponseEntity.ok(adsService.getAdsMe(authentication.getName()));
     }
 
-    @Operation(summary = "Обновление картинки объявления")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Картинка обновлена"),
-            @ApiResponse(responseCode = "401", description = "Неавторизован"),
-            @ApiResponse(responseCode = "403", description = "Доступ запрещён"),
-            @ApiResponse(responseCode = "404", description = "Не найдено")
-    })
     @PatchMapping(value = "/{id}/image", consumes = "multipart/form-data")
     public ResponseEntity<byte[]> updateImage(@PathVariable Integer id,
-                                              @RequestPart("image") MultipartFile image) {
-        return ResponseEntity.ok(new byte[0]);
+                                              @RequestPart("image") MultipartFile image,
+                                              Authentication authentication) {
+        adsService.updateImage(id, authentication.getName(), image);
+        return ResponseEntity.ok().build();
     }
 }

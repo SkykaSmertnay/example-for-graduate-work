@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.dto.Login;
 import ru.skypro.homework.dto.Register;
+import ru.skypro.homework.service.AuthService;
 
 import javax.validation.Valid;
 
@@ -17,6 +18,8 @@ import javax.validation.Valid;
 @CrossOrigin(value = "http://localhost:3000")
 public class AuthController {
 
+    private final AuthService authService;
+
     @Operation(summary = "Авторизация пользователя")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Успешная авторизация"),
@@ -24,6 +27,12 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<Void> login(@Valid @RequestBody Login login) {
+        boolean isAuthenticated = authService.login(login.getUsername(), login.getPassword());
+
+        if (!isAuthenticated) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         return ResponseEntity.ok().build();
     }
 
@@ -34,6 +43,12 @@ public class AuthController {
     })
     @PostMapping("/register")
     public ResponseEntity<Void> register(@Valid @RequestBody Register register) {
+        boolean isRegistered = authService.register(register);
+
+        if (!isRegistered) {
+            return ResponseEntity.badRequest().build();
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
