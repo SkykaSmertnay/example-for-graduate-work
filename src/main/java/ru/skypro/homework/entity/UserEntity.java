@@ -6,8 +6,6 @@ import lombok.Setter;
 import ru.skypro.homework.dto.Role;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -41,10 +39,4 @@ public class UserEntity {
 
     @Column
     private String image;
-
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
-    private List<AdEntity> ads = new ArrayList<>();
-
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
-    private List<CommentEntity> comments = new ArrayList<>();
 }

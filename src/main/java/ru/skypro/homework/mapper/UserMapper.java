@@ -14,8 +14,6 @@ public interface UserMapper {
     @Mapping(target = "email", source = "username")
     @Mapping(target = "image", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "ads", ignore = true)
-    @Mapping(target = "comments", ignore = true)
     UserEntity registerToEntity(Register register);
 
     User toDto(UserEntity userEntity);
@@ -25,7 +23,5 @@ public interface UserMapper {
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "image", ignore = true)
-    @Mapping(target = "ads", ignore = true)
-    @Mapping(target = "comments", ignore = true)
     void updateUserToEntity(UpdateUser updateUser, @MappingTarget UserEntity userEntity);
 }
