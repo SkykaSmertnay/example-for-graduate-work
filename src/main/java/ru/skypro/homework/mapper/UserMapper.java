@@ -12,10 +12,13 @@ import ru.skypro.homework.entity.UserEntity;
 public interface UserMapper {
 
     @Mapping(target = "email", source = "username")
-    @Mapping(target = "image", ignore = true)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "image", ignore = true)
     UserEntity registerToEntity(Register register);
 
+    @Mapping(target = "email", source = "email")
+    @Mapping(target = "image", expression = "java(userEntity.getImage() != null && !userEntity.getImage().isBlank() ? \"/users/image/\" + userEntity.getId() : null)")
     User toDto(UserEntity userEntity);
 
     @Mapping(target = "id", ignore = true)

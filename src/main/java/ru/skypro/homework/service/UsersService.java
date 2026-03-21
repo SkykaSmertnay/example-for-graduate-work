@@ -11,7 +11,11 @@ public interface UsersService {
 
     User getUser(String email);
 
+    User getUserById(Integer id);
+
     UpdateUser updateUser(String email, UpdateUser updateUser);
 
     void updateUserImage(String email, MultipartFile image);
+
+    byte[] getUserImage(Integer id);
 }

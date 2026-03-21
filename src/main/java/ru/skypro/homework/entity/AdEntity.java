@@ -1,18 +1,16 @@
 package ru.skypro.homework.entity;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
 @Entity
 @Table(name = "ads")
+@Getter
+@Setter
 public class AdEntity {
 
     @Id
@@ -35,6 +33,6 @@ public class AdEntity {
     @JoinColumn(name = "author_id", nullable = false)
     private UserEntity author;
 
-    @OneToMany(mappedBy = "ad", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "ad", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments = new ArrayList<>();
 }

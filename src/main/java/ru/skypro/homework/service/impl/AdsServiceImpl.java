@@ -11,13 +11,14 @@ import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.dto.Role;
 import ru.skypro.homework.entity.AdEntity;
 import ru.skypro.homework.entity.UserEntity;
+import ru.skypro.homework.exception.NotFoundException;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdsService;
+import ru.skypro.homework.service.ImageService;
 
 import java.util.List;
-import ru.skypro.homework.exception.NotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class AdsServiceImpl implements AdsService {
     private final AdRepository adRepository;
     private final UserRepository userRepository;
     private final AdMapper adMapper;
+    private final ImageService imageService;
 
     @Override
     public Ads getAllAds() {
@@ -60,7 +62,9 @@ public class AdsServiceImpl implements AdsService {
 
         AdEntity adEntity = adMapper.createToEntity(createOrUpdateAd);
         adEntity.setAuthor(userEntity);
-        adEntity.setImage(image.getOriginalFilename());
+
+        String fileName = imageService.saveImage(image);
+        adEntity.setImage(fileName);
 
         AdEntity savedAd = adRepository.save(adEntity);
         return adMapper.toDto(savedAd);
@@ -92,20 +96,42 @@ public class AdsServiceImpl implements AdsService {
 
         checkAdAccess(adEntity, currentUser);
 
+        if (adEntity.getImage() != null && !adEntity.getImage().isBlank()) {
+            imageService.deleteImage(adEntity.getImage());
+        }
+
         adRepository.delete(adEntity);
     }
 
     @Override
-    public void updateImage(Integer adId, String email, MultipartFile image) {
+    public void updateImage(Integer id, String email, MultipartFile image) {
         UserEntity currentUser = getUserByEmail(email);
 
-        AdEntity adEntity = adRepository.findById(adId)
+        AdEntity adEntity = adRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(AD_NOT_FOUND_MESSAGE));
 
         checkAdAccess(adEntity, currentUser);
 
-        adEntity.setImage(image.getOriginalFilename());
+        if (adEntity.getImage() != null && !adEntity.getImage().isBlank()) {
+            imageService.deleteImage(adEntity.getImage());
+        }
+
+        String fileName = imageService.saveImage(image);
+        adEntity.setImage(fileName);
+
         adRepository.save(adEntity);
+    }
+
+    @Override
+    public byte[] getAdImage(Integer id) {
+        AdEntity adEntity = adRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(AD_NOT_FOUND_MESSAGE));
+
+        if (adEntity.getImage() == null || adEntity.getImage().isBlank()) {
+            throw new NotFoundException("Image not found");
+        }
+
+        return imageService.getImage(adEntity.getImage());
     }
 
     private UserEntity getUserByEmail(String email) {

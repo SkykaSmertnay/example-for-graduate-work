@@ -13,15 +13,15 @@ import java.util.List;
 public interface CommentMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "author", ignore = true)
     @Mapping(target = "ad", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     CommentEntity createToEntity(CreateOrUpdateComment createOrUpdateComment);
 
-    @Mapping(target = "author", source = "author.id")
-    @Mapping(target = "authorImage", source = "author.image")
-    @Mapping(target = "authorFirstName", source = "author.firstName")
     @Mapping(target = "pk", source = "id")
+    @Mapping(target = "author", source = "author.id")
+    @Mapping(target = "authorFirstName", source = "author.firstName")
+    @Mapping(target = "authorImage", expression = "java(commentEntity.getAuthor().getImage() != null && !commentEntity.getAuthor().getImage().isBlank() ? \"/users/image/\" + commentEntity.getAuthor().getId() : null)")
     Comment toDto(CommentEntity commentEntity);
 
     List<Comment> toDtoList(List<CommentEntity> commentEntities);

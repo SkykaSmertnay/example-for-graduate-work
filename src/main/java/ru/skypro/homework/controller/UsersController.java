@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -67,5 +68,15 @@ public class UsersController {
                                                 Authentication authentication) {
         usersService.updateUserImage(authentication.getName(), image);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/image/{id}", produces = {
+            MediaType.IMAGE_JPEG_VALUE,
+            MediaType.IMAGE_PNG_VALUE,
+            MediaType.IMAGE_GIF_VALUE,
+            "image/*"
+    })
+    public ResponseEntity<byte[]> getUserImage(@PathVariable Integer id) {
+        return ResponseEntity.ok(usersService.getUserImage(id));
     }
 }

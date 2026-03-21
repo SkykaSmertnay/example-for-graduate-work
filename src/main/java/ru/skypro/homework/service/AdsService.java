@@ -20,5 +20,7 @@ public interface AdsService {
 
     void deleteAd(Integer adId, String email);
 
-    void updateImage(Integer adId, String email, MultipartFile image);
+    void updateImage(Integer id, String email, MultipartFile image);
+
+    byte[] getAdImage(Integer id);
 }

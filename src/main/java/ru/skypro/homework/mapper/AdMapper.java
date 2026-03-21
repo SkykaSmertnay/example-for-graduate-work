@@ -19,16 +19,10 @@ public interface AdMapper {
     @Mapping(target = "comments", ignore = true)
     AdEntity createToEntity(CreateOrUpdateAd createOrUpdateAd);
 
+    @Mapping(target = "pk", source = "id")
     @Mapping(target = "author", source = "author.id")
-    @Mapping(target = "pk", source = "id")
+    @Mapping(target = "image", expression = "java(adEntity.getImage() != null && !adEntity.getImage().isBlank() ? \"/ads/image/\" + adEntity.getId() : null)")
     Ad toDto(AdEntity adEntity);
-
-    @Mapping(target = "pk", source = "id")
-    @Mapping(target = "authorFirstName", source = "author.firstName")
-    @Mapping(target = "authorLastName", source = "author.lastName")
-    @Mapping(target = "email", source = "author.email")
-    @Mapping(target = "phone", source = "author.phone")
-    ExtendedAd toExtendedDto(AdEntity adEntity);
 
     List<Ad> toDtoList(List<AdEntity> adEntities);
 
@@ -38,4 +32,12 @@ public interface AdMapper {
         ads.setResults(toDtoList(adEntities));
         return ads;
     }
+
+    @Mapping(target = "pk", source = "id")
+    @Mapping(target = "authorFirstName", source = "author.firstName")
+    @Mapping(target = "authorLastName", source = "author.lastName")
+    @Mapping(target = "email", source = "author.email")
+    @Mapping(target = "phone", source = "author.phone")
+    @Mapping(target = "image", expression = "java(adEntity.getImage() != null && !adEntity.getImage().isBlank() ? \"/ads/image/\" + adEntity.getId() : null)")
+    ExtendedAd toExtendedDto(AdEntity adEntity);
 }
