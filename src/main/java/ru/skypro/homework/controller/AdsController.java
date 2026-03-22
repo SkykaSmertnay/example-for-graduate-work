@@ -19,6 +19,11 @@ import ru.skypro.homework.service.AdsService;
 
 import javax.validation.Valid;
 
+/**
+ * Контроллер для работы с объявлениями.
+ * Обрабатывает запросы на получение, создание, изменение и удаление объявлений,
+ * а также на получение и обновление изображений объявлений.
+ */
 @RestController
 @RequestMapping("/ads")
 @CrossOrigin(value = "http://localhost:3000")
@@ -28,6 +33,11 @@ public class AdsController {
     private final AdsService adsService;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Возвращает список всех объявлений.
+     *
+     * @return список объявлений
+     */
     @Operation(summary = "Получение всех объявлений")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Объявления получены")
@@ -37,6 +47,15 @@ public class AdsController {
         return ResponseEntity.ok(adsService.getAllAds());
     }
 
+    /**
+     * Создаёт новое объявление.
+     *
+     * @param properties строка JSON с данными объявления
+     * @param image файл изображения объявления
+     * @param authentication данные авторизованного пользователя
+     * @return созданное объявление
+     * @throws Exception если произошла ошибка при преобразовании JSON в DTO
+     */
     @Operation(summary = "Добавление объявления")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Объявление создано"),
@@ -51,11 +70,24 @@ public class AdsController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ad);
     }
 
+    /**
+     * Возвращает полную информацию об объявлении по его идентификатору.
+     *
+     * @param id идентификатор объявления
+     * @return полная информация об объявлении
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ExtendedAd> getAds(@PathVariable Integer id) {
         return ResponseEntity.ok(adsService.getAdById(id));
     }
 
+    /**
+     * Удаляет объявление по его идентификатору.
+     *
+     * @param id идентификатор объявления
+     * @param authentication данные авторизованного пользователя
+     * @return пустой ответ
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> removeAd(@PathVariable Integer id,
                                          Authentication authentication) {
@@ -63,6 +95,14 @@ public class AdsController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Обновляет объявление по его идентификатору.
+     *
+     * @param id идентификатор объявления
+     * @param createOrUpdateAd данные для обновления объявления
+     * @param authentication данные авторизованного пользователя
+     * @return обновлённое объявление
+     */
     @PatchMapping("/{id}")
     public ResponseEntity<Ad> updateAds(@PathVariable Integer id,
                                         @Valid @RequestBody CreateOrUpdateAd createOrUpdateAd,
@@ -72,11 +112,25 @@ public class AdsController {
         );
     }
 
+    /**
+     * Возвращает список объявлений текущего пользователя.
+     *
+     * @param authentication данные авторизованного пользователя
+     * @return список объявлений пользователя
+     */
     @GetMapping("/me")
     public ResponseEntity<Ads> getAdsMe(Authentication authentication) {
         return ResponseEntity.ok(adsService.getAdsMe(authentication.getName()));
     }
 
+    /**
+     * Обновляет изображение объявления.
+     *
+     * @param id идентификатор объявления
+     * @param image файл нового изображения
+     * @param authentication данные авторизованного пользователя
+     * @return пустой ответ
+     */
     @PatchMapping(value = "/{id}/image", consumes = "multipart/form-data")
     public ResponseEntity<Void> updateImage(@PathVariable Integer id,
                                             @RequestPart("image") MultipartFile image,
@@ -85,6 +139,12 @@ public class AdsController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Возвращает изображение объявления по его идентификатору.
+     *
+     * @param id идентификатор объявления
+     * @return массив байтов изображения
+     */
     @GetMapping(value = "/image/{id}", produces = {
             MediaType.IMAGE_JPEG_VALUE,
             MediaType.IMAGE_PNG_VALUE,

@@ -9,12 +9,23 @@ import org.springframework.stereotype.Service;
 import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.repository.UserRepository;
 
+/**
+ * Сервис загрузки данных пользователя для Spring Security.
+ * Используется для поиска пользователя по email и формирования объекта UserDetails.
+ */
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    /**
+     * Загружает пользователя по его логину.
+     *
+     * @param username логин пользователя
+     * @return объект UserDetails для Spring Security
+     * @throws UsernameNotFoundException если пользователь не найден
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity userEntity = userRepository.findByEmail(username)

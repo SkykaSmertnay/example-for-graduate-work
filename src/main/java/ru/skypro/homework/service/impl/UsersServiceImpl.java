@@ -14,6 +14,11 @@ import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.ImageService;
 import ru.skypro.homework.service.UsersService;
 
+/**
+ * Реализация сервиса для работы с пользователями.
+ * Содержит бизнес-логику получения и обновления профиля,
+ * смены пароля и работы с изображением пользователя.
+ */
 @Service
 @RequiredArgsConstructor
 public class UsersServiceImpl implements UsersService {
@@ -26,6 +31,12 @@ public class UsersServiceImpl implements UsersService {
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
 
+    /**
+     * Изменяет пароль авторизованного пользователя.
+     *
+     * @param email email пользователя
+     * @param newPassword объект с текущим и новым паролем
+     */
     @Override
     public void setPassword(String email, NewPassword newPassword) {
         UserEntity userEntity = getUserEntityByEmail(email);
@@ -38,12 +49,24 @@ public class UsersServiceImpl implements UsersService {
         userRepository.save(userEntity);
     }
 
+    /**
+     * Возвращает данные профиля пользователя по его email.
+     *
+     * @param email email пользователя
+     * @return данные пользователя
+     */
     @Override
     public User getUser(String email) {
         UserEntity userEntity = getUserEntityByEmail(email);
         return userMapper.toDto(userEntity);
     }
 
+    /**
+     * Возвращает данные пользователя по его идентификатору.
+     *
+     * @param id идентификатор пользователя
+     * @return данные пользователя
+     */
     @Override
     public User getUserById(Integer id) {
         UserEntity userEntity = userRepository.findById(id)
@@ -51,6 +74,13 @@ public class UsersServiceImpl implements UsersService {
         return userMapper.toDto(userEntity);
     }
 
+    /**
+     * Обновляет данные профиля пользователя.
+     *
+     * @param email email пользователя
+     * @param updateUser объект с обновлёнными данными пользователя
+     * @return обновлённые данные пользователя
+     */
     @Override
     public UpdateUser updateUser(String email, UpdateUser updateUser) {
         UserEntity userEntity = getUserEntityByEmail(email);
@@ -59,6 +89,13 @@ public class UsersServiceImpl implements UsersService {
         return updateUser;
     }
 
+    /**
+     * Обновляет изображение профиля пользователя.
+     * Старое изображение удаляется перед сохранением нового.
+     *
+     * @param email email пользователя
+     * @param image файл изображения
+     */
     @Override
     public void updateUserImage(String email, MultipartFile image) {
         UserEntity userEntity = getUserEntityByEmail(email);
@@ -73,6 +110,12 @@ public class UsersServiceImpl implements UsersService {
         userRepository.save(userEntity);
     }
 
+    /**
+     * Возвращает изображение пользователя по его идентификатору.
+     *
+     * @param id идентификатор пользователя
+     * @return массив байтов изображения
+     */
     @Override
     public byte[] getUserImage(Integer id) {
         UserEntity userEntity = userRepository.findById(id)
@@ -85,6 +128,12 @@ public class UsersServiceImpl implements UsersService {
         return imageService.getImage(userEntity.getImage());
     }
 
+    /**
+     * Возвращает сущность пользователя по email.
+     *
+     * @param email email пользователя
+     * @return сущность пользователя
+     */
     private UserEntity getUserEntityByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND_MESSAGE));

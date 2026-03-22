@@ -12,6 +12,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+/**
+ * Реализация сервиса для работы с изображениями.
+ * Содержит логику сохранения, получения и удаления файлов изображений
+ * в файловой системе.
+ */
 @Service
 @RequiredArgsConstructor
 public class ImageServiceImpl implements ImageService {
@@ -19,6 +24,13 @@ public class ImageServiceImpl implements ImageService {
     @Value("${app.image.dir}")
     private String imageDir;
 
+    /**
+     * Сохраняет изображение в файловой системе.
+     * При сохранении генерируется уникальное имя файла.
+     *
+     * @param image файл изображения
+     * @return имя сохранённого файла
+     */
     @Override
     public String saveImage(MultipartFile image) {
         try {
@@ -41,6 +53,12 @@ public class ImageServiceImpl implements ImageService {
         }
     }
 
+    /**
+     * Возвращает изображение по имени файла.
+     *
+     * @param fileName имя файла изображения
+     * @return массив байтов изображения
+     */
     @Override
     public byte[] getImage(String fileName) {
         try {
@@ -51,6 +69,11 @@ public class ImageServiceImpl implements ImageService {
         }
     }
 
+    /**
+     * Удаляет изображение по имени файла.
+     *
+     * @param fileName имя файла изображения
+     */
     @Override
     public void deleteImage(String fileName) {
         if (fileName == null || fileName.isBlank()) {
@@ -65,6 +88,12 @@ public class ImageServiceImpl implements ImageService {
         }
     }
 
+    /**
+     * Возвращает расширение файла.
+     *
+     * @param fileName имя файла
+     * @return расширение файла или пустая строка, если расширение отсутствует
+     */
     private String getExtension(String fileName) {
         if (fileName == null || !fileName.contains(".")) {
             return "";
