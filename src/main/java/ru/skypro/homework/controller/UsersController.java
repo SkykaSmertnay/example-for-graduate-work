@@ -3,19 +3,25 @@ package ru.skypro.homework.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
+import ru.skypro.homework.service.UsersService;
 
 import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/users")
 @CrossOrigin(value = "http://localhost:3000")
+@RequiredArgsConstructor
 public class UsersController {
+
+    private final UsersService usersService;
 
     @Operation(summary = "Обновление пароля")
     @ApiResponses(value = {
@@ -24,7 +30,9 @@ public class UsersController {
             @ApiResponse(responseCode = "403", description = "Доступ запрещён")
     })
     @PostMapping("/set_password")
-    public ResponseEntity<Void> setPassword(@Valid @RequestBody NewPassword newPassword) {
+    public ResponseEntity<Void> setPassword(@Valid @RequestBody NewPassword newPassword,
+                                            Authentication authentication) {
+        usersService.setPassword(authentication.getName(), newPassword);
         return ResponseEntity.ok().build();
     }
 
@@ -34,8 +42,8 @@ public class UsersController {
             @ApiResponse(responseCode = "401", description = "Неавторизован")
     })
     @GetMapping("/me")
-    public ResponseEntity<User> getUser() {
-        return ResponseEntity.ok(new User());
+    public ResponseEntity<User> getUser(Authentication authentication) {
+        return ResponseEntity.ok(usersService.getUser(authentication.getName()));
     }
 
     @Operation(summary = "Обновление информации об авторизованном пользователе")
@@ -44,8 +52,9 @@ public class UsersController {
             @ApiResponse(responseCode = "401", description = "Неавторизован")
     })
     @PatchMapping("/me")
-    public ResponseEntity<UpdateUser> updateUser(@Valid @RequestBody UpdateUser updateUser) {
-        return ResponseEntity.ok(updateUser);
+    public ResponseEntity<UpdateUser> updateUser(@Valid @RequestBody UpdateUser updateUser,
+                                                 Authentication authentication) {
+        return ResponseEntity.ok(usersService.updateUser(authentication.getName(), updateUser));
     }
 
     @Operation(summary = "Обновление аватара авторизованного пользователя")
@@ -54,7 +63,9 @@ public class UsersController {
             @ApiResponse(responseCode = "401", description = "Неавторизован")
     })
     @PatchMapping(value = "/me/image", consumes = "multipart/form-data")
-    public ResponseEntity<Void> updateUserImage(@RequestPart("image") MultipartFile image) {
+    public ResponseEntity<Void> updateUserImage(@RequestPart("image") MultipartFile image,
+                                                Authentication authentication) {
+        usersService.updateUserImage(authentication.getName(), image);
         return ResponseEntity.ok().build();
     }
 }
