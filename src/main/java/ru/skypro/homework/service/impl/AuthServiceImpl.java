@@ -9,6 +9,9 @@ import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AuthService;
 
+/**
+ * Реализация сервиса для авторизации и регистрации пользователей.
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -17,6 +20,13 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Проверяет данные пользователя для входа в систему.
+     *
+     * @param userName логин пользователя
+     * @param password пароль пользователя
+     * @return {@code true}, если авторизация успешна, иначе {@code false}
+     */
     @Override
     public boolean login(String userName, String password) {
         return userRepository.findByEmail(userName)
@@ -24,6 +34,13 @@ public class AuthServiceImpl implements AuthService {
                 .orElse(false);
     }
 
+    /**
+     * Регистрирует нового пользователя.
+     * Если пользователь с таким email уже существует, регистрация не выполняется.
+     *
+     * @param register данные для регистрации пользователя
+     * @return {@code true}, если регистрация успешна, иначе {@code false}
+     */
     @Override
     public boolean register(Register register) {
         if (userRepository.existsByEmail(register.getUsername())) {

@@ -14,11 +14,19 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+/**
+ * Конфигурация Spring Security.
+ * Определяет правила доступа к endpoint'ам приложения,
+ * настраивает HTTP Basic аутентификацию и бины безопасности.
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
+    /**
+     * Список публичных endpoint'ов, доступных без авторизации.
+     */
     private static final String[] AUTH_WHITELIST = {
             "/swagger-resources/**",
             "/swagger-ui.html",
@@ -27,11 +35,20 @@ public class WebSecurityConfig {
             "/v3/api-docs/**",
             "/webjars/**",
             "/login",
-            "/register"
+            "/register",
+            "/ads/image/**",
+            "/users/image/**"
     };
 
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Настраивает цепочку фильтров безопасности и правила доступа к endpoint'ам.
+     *
+     * @param http объект конфигурации безопасности
+     * @return цепочка фильтров безопасности
+     * @throws Exception если произошла ошибка настройки безопасности
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -55,6 +72,14 @@ public class WebSecurityConfig {
         return http.build();
     }
 
+    /**
+     * Создаёт провайдер аутентификации на основе {@link UserDetailsService}
+     * и кодировщика паролей.
+     *
+     * @param userDetailsService сервис загрузки пользователей
+     * @param passwordEncoder кодировщик паролей
+     * @return провайдер аутентификации
+     */
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(
             UserDetailsService userDetailsService,
@@ -66,6 +91,11 @@ public class WebSecurityConfig {
         return provider;
     }
 
+    /**
+     * Создаёт кодировщик паролей BCrypt.
+     *
+     * @return кодировщик паролей
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

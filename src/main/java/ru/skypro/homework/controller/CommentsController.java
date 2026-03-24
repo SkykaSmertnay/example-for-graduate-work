@@ -14,6 +14,10 @@ import ru.skypro.homework.service.CommentsService;
 
 import javax.validation.Valid;
 
+/**
+ * Контроллер для работы с комментариями к объявлениям.
+ * Обрабатывает запросы на получение, создание, изменение и удаление комментариев.
+ */
 @RestController
 @RequestMapping("/ads")
 @CrossOrigin(value = "http://localhost:3000")
@@ -22,6 +26,12 @@ public class CommentsController {
 
     private final CommentsService commentsService;
 
+    /**
+     * Возвращает список комментариев для указанного объявления.
+     *
+     * @param id идентификатор объявления
+     * @return список комментариев
+     */
     @Operation(summary = "Получение комментариев объявления")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Комментарии получены"),
@@ -33,6 +43,14 @@ public class CommentsController {
         return ResponseEntity.ok(commentsService.getComments(id));
     }
 
+    /**
+     * Добавляет комментарий к объявлению.
+     *
+     * @param id идентификатор объявления
+     * @param comment данные комментария
+     * @param authentication данные авторизованного пользователя
+     * @return созданный комментарий
+     */
     @Operation(summary = "Добавление комментария к объявлению")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Комментарий добавлен"),
@@ -48,6 +66,14 @@ public class CommentsController {
         );
     }
 
+    /**
+     * Удаляет комментарий по его идентификатору.
+     *
+     * @param adId идентификатор объявления
+     * @param commentId идентификатор комментария
+     * @param authentication данные авторизованного пользователя
+     * @return пустой ответ
+     */
     @Operation(summary = "Удаление комментария")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Комментарий удалён"),
@@ -63,6 +89,15 @@ public class CommentsController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Обновляет комментарий по его идентификатору.
+     *
+     * @param adId идентификатор объявления
+     * @param commentId идентификатор комментария
+     * @param comment новые данные комментария
+     * @param authentication данные авторизованного пользователя
+     * @return обновлённый комментарий
+     */
     @Operation(summary = "Обновление комментария")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Комментарий обновлён"),
